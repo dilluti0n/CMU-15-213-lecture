@@ -155,7 +155,9 @@ for
 $$x = -2^{w-1}x_{w-1} + \sum_{i=0}^{w-2} 2^ix_i,$$
 `~x` is
 $$~x = -2^{w-1}(1 - x_{w-1}) + \sum_{i=0}^{w-2}2^i(1-x_i)$$
+
 this gives you 
+
 $$
 \begin{matrix}
 x + ~x &=& -2^{w-1} + \sum_{i=0}^{w-2}2^i
