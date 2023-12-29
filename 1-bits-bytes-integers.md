@@ -5,8 +5,8 @@
 ### \$1.1 Words
 - Indicating the nominal size of integer and pointer data.
 - For a `w-bit` word size, the virtual adress can range from $0$ to $2^w - 1$ for each byte.
-- `32-bit` computer, which have a `32-bit` word size, the limit of virtual adress is `4 GB`(= $2^32$ bytes).
-- For `64-bit` computer, which is normal at these days, it is `16 EB`(= $2^64$ bytes) in theory. But in reality, the common architecture like `x86-64` do not use this words for all memory location. it uses only 48 bits for the memory allocation, which makes it to `256 TB`.
+- `32-bit` computer, which have a `32-bit` word size, the limit of virtual adress is `4 GB`(= $2^{32}$ bytes).
+- For `64-bit` computer, which is normal at these days, it is `16 EB`(= $2^{64}$ bytes) in theory. But in reality, the common architecture like `x86-64` do not use this words for all memory location. it uses only 48 bits for the memory allocation, which makes it to `256 TB`.
 
 ### \$1.2 Data Sizes
 - Computers and compilers support multiple data formats using different ways to encode data.
@@ -35,13 +35,17 @@
 
 for example, when machine ordering 8-bit int like `0x01234567` : 
 - Big endian (e.g. `Sun`)
+
 |0x100|0x101|0x102|0x103|
 |:---:|:---:|:---:|:---:|
 |01|23|45|67|
+
 - Little endian (e.g. `IA32`, `x86-64`)
+
 |0x100|0x101|0x102|0x103|
 |:---:|:---:|:---:|:---:|
 |67|45|23|01|
+
 - Example:
 ```c
 #include <stdio.h>
@@ -69,17 +73,17 @@ int a = 15213;
 0x7ff7b096965e	00
 0x7ff7b096965f	00
 ```
-this indicates `&a` has a value `0x7ff7bec5665c`, and the result of refrencing `printf("%i\n", (char *) &a);` is `110(0x6d)`, not `0` or `15213`.
+this indicates `&a` has a value `0x7ff7bec5665c`, and the result of refrencing `(char *) &a` is `110(0x6d)`, not `0` or `15213`.
 
 ### \$1.4 Unsigned & Signed values
 
 - Unsigned :
   - $B2U(x_i) = \sum_{i = 0}^{w-1} 2^{i-1}x_i$
-  - $0 (Umin) \leq (Unsigned) \leq 2^{w} - 1 (UMax)$
+  - $0  (U_{min}) \leq U \leq 2^{w} - 1  (U_{max})$
 - Two's Complement Values :
-  - $B2S(x_i) = -2^{w-1}x_{w-1} + \sum_{i = 0}^{w-2} 2^{i-1}x_i$
-  - the leading bit is sign bit.
-  - $-2^{w-1}(Tmin) \leq (Signed) \leq 2^{w-1} (TMax)
+  - $B2T(x_i) = -2^{w-1}x_{w-1} + \sum_{i = 0}^{w-2} 2^{i-1}x_i$
+  - the leading bit is the sign bit.
+  - $-2^{w-1}  (T_{min}) \leq T \leq 2^{w-1}  (T_{max})$
 - Conversion :
   - conversion between two's complement values and unsigned values always reserve its bit pattern.
 - Casting :
@@ -93,3 +97,68 @@ this indicates `&a` has a value `0x7ff7bec5665c`, and the result of refrencing `
   - Arithmetic Right Shift : Replicate most significant bit on left
   - right-shifting an `unsigned` value is defined by the C standard as a `logical shift`, but for a `signed` value, it is not defined; most compilers typically perform an `arithmetic shift` implicitly.
   - Shifting amount `< 0` or `>=` word size is not defined.(In the latter case, compilers typically perform the operation as mod (size) implicitly.)
+
+### \$1.5 arithmetic in C
+
+- Sign Extension
+  - basic concept:
+
+```tex
+\begin{matrix}
+-2^{w+k-1} + 2^{w+k-2} + ... + 2^{w-1}  &=& -2^{w+k-1} + 2^{w-1} * (2^{k-1} - 1) \\
+                                        &=& -2^{w-1}
+\end{matrix}
+```
+  - Example:
+```c
+short int x = 15213;
+int      ix = (int) x;
+short int y = -15213;
+int      iy = (int) y;
+```
+
+| |Decimal|Hex|
+|-|------:|--:|
+|x|15213  |3B 6D|
+|ix|15213 |00 00 3B 6D|
+|y|-15213  |C4 93|
+|iy|-15213 |FF FF C4 93|
+
+- Truncation
+  - truncating bit to `w-bit` makes its value to $(mod 2^w)$ of original value.
+  - for Two's compliment number system, this rule become complicated.
+- Addition
+  - for `w-bit` operands, `True Sum` requires `w+1` bits.
+  - In actual computers, the carry is discarded during the addition.
+  - Unsigned addition : Use truncation rule
+    - $UAdd_w(u,v) = u + v mod 2^w$
+  - Two's complement addition : There is no diffrence between unsigned at the bit level addition.
+
+```c
+int s, t, u, v;
+s = (int) ((unsigned) u + (unsigned) v);
+t = u + v;
+```
+`s == t`
+- Multiplication
+  - for `w-bit` operands, `True Product` requires `2*w` bits.
+  - leading `w` bits are discarded in real machines.
+  - some of which are different for signed and unsigned multiplication.
+  - `u << k` gives $u * 2^k$ both signed and unsigned.
+  - `u >> k` gives $u / 2^k$ for unsigned.
+  - For negative number of signed int, arithmetic `u >> k` still gives $\lfloor u / 2^k \rfloor$, however this is diffrent from $u / 2^k$ in C, so we need to add the bias to `u >> k` if u is signed and negative.
+- Negation
+  - `~x + 1 == -x`
+for
+```tex
+x = -2^{w-1}x_{w-1} + \sum_{i=0}^{w-2} 2^ix_i,
+~x = -2^{w-1}(1 - x_{w-1}) + \sum_{i=0}^{w-2}2^i(1-x_i)
+```
+this gives you 
+```tex
+\begin{matrix}
+x + ~x &=& -2^{w-1} + \sum_{i=0}^{w-2}2^i
+       &=& -2^{w-1} + (2^{w-1}-1)
+       &=& -1
+\end{matrix}
+```
