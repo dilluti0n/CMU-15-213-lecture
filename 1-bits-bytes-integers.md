@@ -105,7 +105,7 @@ this indicates `&a` has a value `0x7ff7bec5665c`, and the result of refrencing `
 
 $$
 \begin{matrix}
--2^{w+k-1} + 2^{w+k-2} + ... + 2^{w-1}  &=& -2^{w+k-1} + 2^{w-1} * (2^{k-1} - 1) \\
+-2^{w+k-1} + 2^{w+k-2} + ... + 2^{w-1}  &=& -2^{w+k-1} + 2^{w-1}(2^{k-1} - 1) \\
                                         &=& -2^{w-1}
 \end{matrix}
 $$
@@ -149,8 +149,11 @@ t = u + v;
   - For negative number of signed int, arithmetic `u >> k` still gives $\lfloor u / 2^k \rfloor$, however this is diffrent from $u / 2^k$ in C, so we need to add the bias to `u >> k` if u is signed and negative.
 - Negation
   - `~x + 1 == -x`
+
 for
+
 $$x = -2^{w-1}x_{w-1} + \sum_{i=0}^{w-2} 2^ix_i,$$
+`~x` is
 $$~x = -2^{w-1}(1 - x_{w-1}) + \sum_{i=0}^{w-2}2^i(1-x_i)$$
 this gives you 
 $$
