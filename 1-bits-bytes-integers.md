@@ -103,12 +103,12 @@ this indicates `&a` has a value `0x7ff7bec5665c`, and the result of refrencing `
 - Sign Extension
   - basic concept:
 
-```tex
+$$
 \begin{matrix}
 -2^{w+k-1} + 2^{w+k-2} + ... + 2^{w-1}  &=& -2^{w+k-1} + 2^{w-1} * (2^{k-1} - 1) \\
                                         &=& -2^{w-1}
 \end{matrix}
-```
+$$
   - Example:
 ```c
 short int x = 15213;
@@ -150,15 +150,13 @@ t = u + v;
 - Negation
   - `~x + 1 == -x`
 for
-```tex
-x = -2^{w-1}x_{w-1} + \sum_{i=0}^{w-2} 2^ix_i,
-~x = -2^{w-1}(1 - x_{w-1}) + \sum_{i=0}^{w-2}2^i(1-x_i)
-```
+$$x = -2^{w-1}x_{w-1} + \sum_{i=0}^{w-2} 2^ix_i,$$
+$$~x = -2^{w-1}(1 - x_{w-1}) + \sum_{i=0}^{w-2}2^i(1-x_i)$$
 this gives you 
-```tex
+$$
 \begin{matrix}
 x + ~x &=& -2^{w-1} + \sum_{i=0}^{w-2}2^i
        &=& -2^{w-1} + (2^{w-1}-1)
        &=& -1
 \end{matrix}
-```
+$$
