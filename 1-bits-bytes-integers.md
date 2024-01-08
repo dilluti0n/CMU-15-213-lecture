@@ -1,6 +1,6 @@
 # 1. bits, bytes, and integers
 > lecture source : [02-03-bits-ints.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/02-03-bits-ints.pdf)\
-> lab assignment solution for Datalab : [Repository](https://github.com/dilluti0n/CMU-15213-Lab/tree/master/1_DataLab)
+> lab assignment solution for Datalab : [1_Datalab](https://github.com/dilluti0n/CMU-15213-Lab/tree/master/1_DataLab)
 
 ### \$1.1 Words
 - Indicating the nominal size of integer and pointer data.

@@ -1,5 +1,8 @@
-# 3. Machine Level Programming 1: Basics
-> lecture source : [05-machine-basics.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/05-machine-basics.pdf)\
+# 3. Machine Level Programming
+> lecture source : [05-machine-basics.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/05-machine-basics.pdf), [06-machine-control.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/06-machine-control.pdf), [07-machine-procedures.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/07-machine-procedures.pdf)\
+> lab assignment solution for Bomblab : [2_BombLab](https://github.com/codeAligned/CMU-15213-Lab/tree/master/2_BombLab)
+
+## Basics
 
 ### \$3.1 C, assembly, machine code
 - Definitions
@@ -82,3 +85,53 @@ swap:
   - Arguments of funtion will be continuously designated `%rdi`, `%rsi`, `%rdx`, `%rcx`, `%r8`, `%r9` (up to 6) by compiler.
   - In this case, it is `%rdi`: `xp` and `%rsi`: `yp`.
   - Since we declare the `8-byte` `long` variables, following registers are `64-bit` sets.
+
+### \$3.3 Arithmetic Operations in x86-64
+- Basic Operations
+  - `addq Src, Dest`: Adds Src to Dest.
+  - `subq Src, Dest`: Subtracts Src from Dest.
+  - `imulq Src, Dest`: Multiplies Src and Dest.
+  - `salq Src, Dest`: Shifts Dest left by Src bits (Shift arithmetic left).
+  - `sarq Src, Dest`: Shifts Dest right by Src bits, maintaining sign (Shift arithmetic right).
+  - `shrq Src, Dest`: Shifts Dest right by Src bits, without maintaining sign (Shift logical right).
+- Special Arithmetic Instructions
+  - `incq Dest`: Increments Dest by 1.
+  - `decq Dest`: Decrements Dest by 1.
+  - `negq Dest`: Negates the value of Dest.
+  - `notq Dest`: Performs bitwise NOT on Dest.
+
+### \$3.4 Logical Operations
+- Basic Logical Instructions
+  - `andq Src, Dest`: Bitwise AND of Src and Dest.
+  - `orq Src, Dest`: Bitwise OR of Src and Dest.
+  - `xorq Src, Dest`: Bitwise XOR of Src and Dest.
+- Setting Condition Codes
+  - Operations like `addq`, `subq`, and `andq` set condition codes based on the result which can be used for subsequent conditional operations.
+
+## Address Computation Instruction
+- `leaq Src, Dest`: Loads effective address from Src to Dest. Useful for address computations and pointer manipulations.
+
+### \$3.5 Example: Arithmetic Expression Evaluation
+- C Code Example:
+```c
+long arith(long x, long y, long z) {
+    long t1 = x + y;
+    long t2 = z + t1;
+    long t3 = x + 4;
+    long t4 = y * 48;
+    long t5 = t3 + t4;
+    long rval = t2 * t5;
+    return rval;
+}
+```
+- this is compiled to:
+```asm
+arith:
+    leaq (%rdi,%rsi), %rax  # t1 = x + y
+    addq %rdx, %rax         # t2 = z + t1
+    leaq 4(%rdi), %rdx      # t3 = x + 4
+    salq $4, %rsi           # t4 = y * 16 (left shift by 4 is equivalent to multiplying by 16)
+    leaq (%rdi,%rsi), %rcx  # t5 = t3 + t4
+    imulq %rcx, %rax        # rval = t2 * t5
+    ret                     # return rval
+```
