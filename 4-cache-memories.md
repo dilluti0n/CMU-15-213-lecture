@@ -12,7 +12,7 @@
   - b - block offset
 - cache : (S, E, B)
   - S - $2^s$ sets
-  - E - associativity (block per each set)
+  - E - associativity (line per each set)
   - B - Each block has $B = 2^b$ bytes of size
 
 **Example**
@@ -22,7 +22,7 @@ $(S, E, B) = (2^2, 2, 2^2)$
 
 *2-way set-associative cache with 4-sets and a block size of 4 bytes*
 
-| set index |     Block(Line) 1      |      Block(Line) 2     |
+| set index |     Line 1      |      Line 2     |
 |:---------:|:----------------------:|:----------------------:|
 |     00    | (tag) [00\|01\|10\|11] | (tag) [00\|01\|10\|11] |
 |     01    | (tag) [00\|01\|10\|11] | (tag) [00\|01\|10\|11] |
@@ -43,11 +43,11 @@ $(S, E, B) = (2^2, 2, 2^2)$
 
 1. search for set `3`, tag `0x9`.
 2. cache `HIT` or `MISS`:
-    - `HIT`: If a block with tag `0x9` exists in set `0b11`, it's a cache hit. Load the 2 bytes of data from block offsets `[10-11]`. - `case (1)`
-    - `MISS`: If no block with tag `0x9` is found, it's a cache miss. Proceed to `step 3`.
+    - `HIT`: If a line with tag `0x9` exists in set `3`, Load the data from block offsets `[10-11]` of that line. - `case (1)`
+    - `MISS`: If there is no line with tag `0x9`, go to `step 3`.
 3. Handling `MISS`:
-    - Empty Block Available: if there is an empty block in set `0b11`, write tag `0x9` and `M[0x9e-0x9f]` to block offsets `[10-11]`. load `B[10-11]` to reg. - `case (2)`
-    - Eviction Required: If there are no empty blocks, select a block for eviction based on the replacement policy (e.g., LRU, random). Replace the evicted block's contents with the new data and load it to the register. - `case (3)`
+    - Empty Block Available: if there is an empty line in set `0b11`, write tag `0x9` and Load `M[0x9e-0x9f]` to block offsets `[10-11]`. load `B[10-11]` to reg. - `case (2)`
+    - `EVICTION` Required: If there are no empty lines, select a block for `eviction` based on the `replacement policy` (e.g., LRU, random). Replace the evicted line's tag to `0x9` and Load `M[0x9e-0x9f]` to block `[10-11]`. - load `B[10-11]` to reg. - `case (3)`
 
 <p align="center">
 
@@ -56,8 +56,10 @@ $(S, E, B) = (2^2, 2, 2^2)$
 |    HIT   |   MISS   | MISS EVICT |
 </p>
 
-- replacement policy
-  - least recently used(LRU)
+- `replacement policy`
+  - least recently used(LRU) : replace the least-recently used line when evicted.
+
+see also [CMU-15213-lab-sol/.../csim.c](https://github.com/dilluti0n/CMU-15213-lab-sol/blob/master/4_CacheLab/cachelab-handout/csim.c) : the cache simulater with least-recently used policy, implemented by quene.
 
 **Write**
 1. `hit`
