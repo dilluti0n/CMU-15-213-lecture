@@ -40,9 +40,9 @@
     - Empty Block Available: if there is an empty block in set 0b11, write tag 0x9 and M[0x9e-0x9f] to block offsets [10-11] load B[10-11] to reg. - (2)
     - Eviction Required: If there are no empty blocks, select a block for eviction based on the replacement policy (e.g., LRU, random). Replace the evicted block's contents with the new data and load it to the register. - (3)
     
-case (1) - HIT
-case (2) - MISS
-case (3) - MISS EVICT
+| case (1) | case (2) |  case (3)  |
+|:--------:|:--------:|:----------:|
+|    HIT   |   MISS   | MISS EVICT |
 
   - Eviction and Replacement Policies
 Eviction occurs when a cache miss happens, and there are no empty blocks available in the relevant set. A block must be selected for eviction to make room for the new data.
