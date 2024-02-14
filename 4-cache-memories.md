@@ -70,3 +70,7 @@ $(S, E, B) = (2^2, 2, 2^2)$
 - Typical comb.
   - `write-through` + `no-write-allocate`
   - `Write-back` + `Write-allocate` (normal)
+
+### 4.2.3. Writing cache-friendly code
+
+see [CMU-15213-lab-sol/4_cachelab](https://github.com/dilluti0n/CMU-15213-lab-sol/tree/master/4_CacheLab)
