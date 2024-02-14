@@ -29,13 +29,14 @@
 </p>
 
 - cache read
-ex. load from mem. adress 0x9e, 2 byte (short int), (s, E, b) = (2, 2, 2)
+
+(ex) load from mem. adress 0x9e, 2 byte (short int), (s, E, b) = (2, 2, 2)
   - 0x9e = [1001][11][10]
-  1. search for set 0b11(decimal 3), tag 0x9.
-  2. cache HIT or MISS:
+1. search for set 0b11(decimal 3), tag 0x9.
+2. cache HIT or MISS:
     - HIT: If a block with tag 0x9 exists in set 0b11, it's a cache hit. Load the 2 bytes of data from block offsets [10-11]. - End with case (1)
     - MISS: If no block with tag 0x9 is found, it's a cache miss. Proceed to step 3.
-  3. Handling MISS:
+3. Handling MISS:
     - Empty Block Available: if there is an empty block in set 0b11, write tag 0x9 and M[0x9e-0x9f] to block offsets [10-11] load B[10-11] to reg. - (2)
     - Eviction Required: If there are no empty blocks, select a block for eviction based on the replacement policy (e.g., LRU, random). Replace the evicted block's contents with the new data and load it to the register. - (3)
     
