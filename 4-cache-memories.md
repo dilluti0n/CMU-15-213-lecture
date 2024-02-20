@@ -3,6 +3,44 @@
 
 ## $4.1. Memory hierarchy
 
+### 4.1.1. Storage technologies and trends
+**Memories**
+- Random-Acess Memory - `RAM`
+  - Baisic storage unit - `cell` (1 bit/cell)
+  - Multiple `RAM` chips form a memory
+  - two varieties: Static RAM, Dynamic RAM
+  - `SRAM`: fast, expensive - Cache memories
+  - `DRAM`: slow, cheap - Main memories, Frame buffers
+- Nonvolatile Memories - `ROM`, `SSD`, Disk caches...
+  - Read-only memory - `ROM` - cannot be programmed
+  - Programmable ROM - `PROM` - can be programmed once
+  - Eraseable PROM - `EPROM` - can be `bulk` erased (UV, X-Ray)
+  - Electrically eraseable PROM - `EEPROM` - electronic erase capability
+  - Flash memory: EPROMs.. with partial (block-level) erase capability
+	- wears out after about 100,000 erasing
+
+**Bus Structure**
+- `Bus` - collection of parallel wires that carry adress, data, control signs.
+- Memory read(Load) `movq A, %rax` (`A`: adress)
+  1. CPU places `A` on the memory bus.
+  2. Main memory reads `A` from the memory bus, retrieves data, and places it on the bus.
+  3. CPU read data from the bus and copies it into `%rax`.
+- Memory write(Store) `movq %rax, A` (`A`: adress)
+  1. CPU places `A` on bus. Main memory reads it and waits for the corresponding data to arrive.
+  2. CPU places data on the bus.
+  3. Main memory reads data from the bus and stores it at adress `A`.
+  
+**Disk Drive**
+- structure
+  - `Disks` - consist of `platters` - each with two `surfaces`
+  - each `surface` - consists of concentric rings, `tracks`
+  - each `track` - consists of `sectors` sepatated by `gaps`
+  - `recoding zone` - 
+- capacity - maximum number of bits that can be stored.
+  - `Recording density` [bits/in] - number of bits / 1 inch segment of a `track`
+  - `Track density` [tracks/in] - number of `tracks` / 1 inch of radial segment
+  - `Areal density` [bits/in^2] - `Recoding density` * `Track density`
+  
 ## $4.2. Cache Memories
 
 ### 4.2.1. General cache concept
@@ -31,7 +69,7 @@ $(S, E, B) = (2^2, 2, 2^2)$
 </div>
 
 ### 4.2.2 cache read and write
-**Example - Read**
+**Read-Example**
 
 > Load `2 bytes` of data from adress `0x9e` of little endian machine (i.e. data from `M[0x9e-0x9f]`)
 >
