@@ -1,9 +1,9 @@
-# 6. Exceptional control flow
-> lecture source: [14-ecf-procs.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/14-ecf-procs.pdf)
+# 6. Exceptional Control Flow
+> lecture source: [14-ecf-procs.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/14-ecf-procs.pdf) [15-ecf-signals.pdf](https://www.cs.cmu.edu/afs/cs/academic/class/15213-f15/www/lectures/15-ecf-signals.pdf)
 
-### **control flow**
+### **Control flow**
 
-A program is sequence of instrucions (Say {In}). Also, their respective adresses form a incrementing sequence {an}. The instruction Ik loaded at some address ai will move the program counter to aj after execution, and the CPU will execute the instruction I{k+1} loaded at that address. This flow of programs is called control flow. If j = i+1, (i.e. Ik moves program counter to next adress) we say the flow through Ik is _smooth_; otherwise, it is _abrupt_.
+A program is sequence of instrucions (Say I{n}). Also, their respective adresses form a incrementing sequence a{n}. The instruction I{k} loaded at some address a{i} will move the program counter to a{j} after execution, and the CPU will execute the instruction I{k+1} loaded at that address. This flow of programs is called control flow. If j = i+1, (i.e. Ik moves program counter to next adress) we say the flow through Ik is _smooth_; otherwise, it is _abrupt_.
 
 - smooth - add, ...
 - abrupt - jmp, call, ret
@@ -28,7 +28,7 @@ It is part of abrupt control flow, however does not control by the program's ins
 ## $6.1. Exceptions
 
 - Transfer of control to the OS kernel in response to some _event_
-- **event** - Divide by 0, arithmetic overflow, page fault, I/O request, typing Ctrl-C.
+- **Events** - Divide by 0, arithmetic overflow, page fault, I/O request, typing Ctrl-C ...
 - **Exception Tables**
   - Each type of event has a unique exception number k.
   - k = index into exception table (a.k.a. inturrupt vector)
@@ -70,12 +70,22 @@ cmp $0xfffffffffffff001,%rax
   - _able_ to correct - Returns to faulting execution and re-execute it!
   - _disable_         - Abort
   
-- EX) Page Fault (recoverable), Segmentation Fault (Abort)
+**Example**
 
-### Aboarts
+- Page Fault (recoverable)
+  1. The process accesses not-loaded adress. (or instruction itself has been not-loaded yet)
+  2. Page fault handler loads current page to memory from disk.
+  3. The handler returns to Icurr & re-execute it!
+  - More explaination on VM part..
+- Segmentation Fault (Abort)
+  1. The process accesses to illigal adress
+  2. Segmentation fault handler delivers SIGSEGV to process.
+  3. The Process terminated (or Signal handler for SIGSEGV executed, if it is planted for that process..)
+
+### Aborts
 
 - Result from unrecoverable fatal errors.
 - always abort
-- Memory bits are corrupted, ...
+- EX) Memory bits are corrupted, ...
 
-## $5.2. Process and context switch
+## $6.2. Process and context switch
