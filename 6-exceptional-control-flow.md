@@ -41,7 +41,7 @@ It is part of abrupt control flow, however does not control by the program's ins
 - Caused by events external to the processer. (e.g. keyboard pressed, Timer interrupt, ...)
 
 1. Event occured (cpu's inturrupt pin goes high)
-2. Icurr executed (Note, even if an event occurs while Icurr running, an exception occurs _after_ Icurr completes execution.)
+2. Icurr executed (Note; even if an event occurs while Icurr running, an exception occurs _after_ Icurr completes execution.)
 3. Read exception number from system bus.
 4. Call to inturrupt handler. (When this, adress to Inext pushed to kernel stack)
 5. After handler executed, it returns to Inext.
@@ -89,3 +89,93 @@ cmp $0xfffffffffffff001,%rax
 - EX) Memory bits are corrupted, ...
 
 ## $6.2. Process and context switch
+
+- _process_ - instance of running program.
+- Key abstractions provided by _process_
+  1. Logical control flow - _context switching_
+    - Each program seems to have exclusive use of the CPU
+  2. Private adress space - _virtual memory_
+    - Each program appears to have exclusive access to the main memory
+- Two processes run _concurrently_ if their flows overlap in time (Otherwise, they are _sequential_)
+
+**Implements**
+For process control. (See [5_ShellLab/shlab-handout/tsh.c](https://github.com/dilluti0n/CMU-15213-lab-sol/blob/master/5_ShellLab/shlab-handout/tsh.c) also.)
+
+- Process states
+  - Running - Either executing or chosen to execute by kernel.
+  - Stopped - The execution is _suspended_ and will not be scheduled until further notice(by signals).
+  - Terminated - Stoped permanently.
+  
+- Process become **terminated** for one of three reasons:
+  1. Receiving a signal whose default action is to terminate.
+  2. Returning from the `main` routine
+    - The return value become the exit status.
+  3. Calling the `exit` function
+    - `void exit(int status)`
+      - Terminates with an exit status of `status`
+      - Normal return status is 0, nonzero on error.
+      - Called once, never returns.
+      
+- _Parent_ process creates a new running _child_ process by calling `fork`
+  - `int fork(void)`
+    - Returns 0 for child process, child's PID to parent process.
+    - Called once, returns twice.
+    - Child executes concurrently with its parent. - cannot predict order.
+    - Duplicate but separate address space
+    - Shared open files
+  - **Example**
+```c
+int main()
+{
+    pid_t pid;
+    int x = 1;
+    
+    if((pid = fork()) == -1) {
+        perror("fork: ");
+        exit(1);
+    } else if (pid == 0) { /* Child */
+        printf("child: x=%d\n", ++x);
+        exit(0);
+    }
+    
+    printf("parent: x=%d\n", --x);
+    exit(0);
+}
+```
+Result
+```
+linux> ./fork
+parent: x=0
+child: x=2
+```
+  - track the unpredictable cocurrent execution with _process graph_
+
+- _Reaping_ child processes
+  - zombie process - A process that has terminated but still consumes system resources.
+    - Exit status, various OS tables, ...
+    - These system resources are freed by _Reaping_ it from its parent.
+  - _Reaping_
+    - Performed by parent calling syscalls. (`wait`, `waitpid`)
+    - Parent given exit status information.
+    - Kernal then deletes zombie child 
+(child process terminated -> reap by its parent -> kernal frees system resources using by child)
+    - If any parent terminates without reaping a child, then the orphaned child will reaped by `init` process.
+    - Only need explicit reaping in long-running processes.
+      - shells, servers, ...
+
+  - `int wait(int *child_status)`
+    - Suspends current process until one of its children terminates. (and reaps that terminated children!)
+    - Return `pid` of the child process that terminated
+    - If `child_status` is non-`NULL`, then the integer it points to will be set to a value that indicates reason the child terminated and the exit status. (see `wait(2)`)
+    
+  - `pid_t waitpid(pid_t pid, int &status, int options)`
+    - `wait` with various options rather than just suspends current process until _one_ of its children.
+
+- _Loading_ and _Running_ Programs
+  - `int execve(char *filename, char *argv[], char *envp[])`
+    - Loades executable `filename` (ELF or script with `#!interpreter`) in the current process
+    - ...with argument list `argv` (passe to loaded program)
+    - ...and environment variable list `envp`
+      - "name=value" strings (e.g. `PATH=/bin:/usr/local/bin`)
+      - gloval variable `char **environ` on libc.
+      - see `getenv(3)`, `putenv(3)`, `printenv(3)`.
